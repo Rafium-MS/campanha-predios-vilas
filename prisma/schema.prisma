@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StatusPredioVila {
+  PENDENTE
+  DESIGNADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  REVISITAR
+}
+
+model PredioVila {
+  id                     String           @id
+  nome                   String
+  endereco               String
+  tipo                   String?
+  numero                 String?
+  quantidadeResidencias  Int              @default(0)
+  modalidade             String?
+  tipoRecepcao           String?
+  responsavel            String?
+  dataDesignacao         DateTime?
+  quadra                 Int?
+  observacoes            String?
+  status                 StatusPredioVila @default(PENDENTE)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  @@index([nome])
+  @@index([endereco])
+  @@index([quadra])
+  @@index([responsavel])
+  @@index([status])
+  @@index([tipoRecepcao])
+}
