@@ -15,6 +15,26 @@ enum StatusPredioVila {
   REVISITAR
 }
 
+enum TipoPeriodoTrabalho {
+  CAMPANHA
+  SEMESTRAL
+}
+
+enum StatusPeriodoTrabalho {
+  PLANEJADO
+  ATIVO
+  ENCERRADO
+}
+
+enum StatusDesignacao {
+  DESIGNADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  PENDENTE
+  BLOQUEADO
+  CANCELADO
+}
+
 model PredioVila {
   id                     String           @id
   nome                   String
@@ -31,6 +51,7 @@ model PredioVila {
   status                 StatusPredioVila @default(PENDENTE)
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
+  designacoes            Designacao[]
 
   @@index([nome])
   @@index([endereco])
@@ -38,4 +59,50 @@ model PredioVila {
   @@index([responsavel])
   @@index([status])
   @@index([tipoRecepcao])
+}
+
+model PeriodoTrabalho {
+  id          String                @id @default(cuid())
+  nome        String
+  tipo        TipoPeriodoTrabalho
+  dataInicio  DateTime
+  dataFim     DateTime?
+  status      StatusPeriodoTrabalho @default(PLANEJADO)
+  observacoes String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  designacoes Designacao[]
+
+  @@index([tipo])
+  @@index([status])
+  @@index([dataInicio])
+  @@index([dataFim])
+}
+
+model Designacao {
+  id                       String           @id @default(cuid())
+  predioVilaId             String
+  periodoTrabalhoId        String
+  responsavel              String
+  dataDesignacao           DateTime
+  dataInicio               DateTime
+  dataFimPrevista          DateTime?
+  dataConclusao            DateTime?
+  status                   StatusDesignacao @default(DESIGNADO)
+  quantidadeCartasDeixadas Int              @default(0)
+  observacoesDoDesignado   String?
+  problemasEncontrados     String?
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  predioVila        PredioVila        @relation(fields: [predioVilaId], references: [id], onDelete: Cascade)
+  periodoTrabalho   PeriodoTrabalho   @relation(fields: [periodoTrabalhoId], references: [id], onDelete: Cascade)
+
+  @@index([predioVilaId])
+  @@index([periodoTrabalhoId])
+  @@index([responsavel])
+  @@index([status])
+  @@index([dataInicio])
+  @@index([dataFimPrevista])
+  @@index([dataConclusao])
 }

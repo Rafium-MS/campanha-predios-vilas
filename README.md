@@ -55,6 +55,8 @@ Se o ID já existir, o registro é atualizado. Se não existir, é criado. Regis
 
 - `/` Dashboard
 - `/predios` Lista geral
+- `/periodos` Períodos de trabalho
+- `/periodos/[id]` Detalhes do período, designações e conclusões
 - `/predios/novo` Novo prédio/vila
 - `/predios/[id]` Detalhes
 - `/predios/[id]/editar` Editar
@@ -62,6 +64,38 @@ Se o ID já existir, o registro é atualizado. Se não existir, é criado. Regis
 - `/importar` Importar planilha
 - `/relatorios` Relatórios e exportações
 - `/configuracoes` Dados básicos do sistema
+
+## Modos de trabalho
+
+O sistema suporta dois modos:
+
+### Campanha
+
+Use para períodos curtos em que todos os prédios/vilas precisam ser trabalhados. O período exige data de início e data de fim. A tela de detalhes mostra total de prédios/vilas, designados, concluídos, pendentes, percentual concluído e cartas deixadas.
+
+Ao concluir uma designação, informe:
+
+- Quantidade de cartas deixadas
+- Observações do designado
+- Problemas encontrados
+
+### Trabalho Semestral
+
+Use para o trabalho regular ao longo do ano. Ao criar uma designação semestral, o sistema calcula automaticamente a data prevista de fim para 6 meses após a data de início.
+
+Regras aplicadas:
+
+- Um prédio/vila não pode ser redesignado antes de cumprir 6 meses desde a última designação ativa.
+- Depois de concluído, o prédio/vila fica 6 meses sem poder ser trabalhado novamente.
+- O bloqueio é calculado pelo histórico de designações.
+- Quando houver bloqueio, a tela informa a próxima data permitida.
+
+## Relatórios
+
+Em `/relatorios`, o sistema mostra:
+
+- Relatório de Campanha: totais, pendências, cartas, responsáveis, problemas e observações.
+- Relatório Semestral: designados, concluídos, em andamento, cartas, prédios liberados, bloqueados e próxima data permitida.
 
 ## Deploy na Vercel
 
