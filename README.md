@@ -1,4 +1,4 @@
-# Campanha Prédios e Vilas
+# Território de Prédios e Vilas
 
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
@@ -7,7 +7,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwindcss)
 ![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)
 
-Sistema web para controle de prédios e vilas, designações, campanhas, trabalho semestral, importação de planilhas e relatórios operacionais.
+Sistema web para controle de territórios de prédios e vilas, designações, campanhas, trabalho semestral, importação de planilhas e relatórios operacionais.
 
 ## Sumário
 

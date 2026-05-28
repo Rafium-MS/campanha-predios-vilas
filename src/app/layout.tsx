@@ -4,7 +4,7 @@ import { Nav } from "@/components/layout/nav";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Campanha Prédios e Vilas",
+  title: "Território de Prédios e Vilas",
   description: "Sistema para controle de campanha de prédios e vilas.",
 };
 

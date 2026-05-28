@@ -1,6 +1,6 @@
 # Guia de Contribuição
 
-Obrigado por contribuir com o Campanha Prédios e Vilas.
+Obrigado por contribuir com o Território de Prédios e Vilas.
 
 ## Antes de começar
 
