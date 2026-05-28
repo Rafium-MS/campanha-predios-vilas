@@ -1,13 +1,12 @@
-import { StatusPredioVila } from "@prisma/client";
+import { StatusPeriodoTrabalho, StatusPredioVila } from "@prisma/client";
 
-import { designarPredioVila } from "@/actions/predios";
-import { Button } from "@/components/ui/button";
+import { NovaDesignacaoForm } from "@/components/designacoes/nova-designacao-form";
 import { Card } from "@/components/ui/card";
-import { Field, Input, Select } from "@/components/ui/field";
 import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { DesignacaoStatusBadge, StatusBadge } from "@/components/ui/status-badge";
 import { prisma } from "@/lib/prisma";
+import { formatDate } from "@/lib/trabalho";
 
 export const dynamic = "force-dynamic";
 
@@ -17,42 +16,77 @@ export default async function DesignacoesPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const registros = await prisma.predioVila.findMany({
-    where: {
-      status: { in: [StatusPredioVila.PENDENTE, StatusPredioVila.DESIGNADO, StatusPredioVila.EM_ANDAMENTO] },
-    },
-    orderBy: [{ status: "asc" }, { quadra: "asc" }, { nome: "asc" }],
-  });
+  const hoje = new Date();
+  const [registros, periodosValidos, designacoesRecentes] = await Promise.all([
+    prisma.predioVila.findMany({
+      where: {
+        status: { in: [StatusPredioVila.PENDENTE, StatusPredioVila.DESIGNADO, StatusPredioVila.EM_ANDAMENTO] },
+      },
+      orderBy: [{ status: "asc" }, { quadra: "asc" }, { nome: "asc" }],
+    }),
+    prisma.periodoTrabalho.findMany({
+      where: {
+        status: { not: StatusPeriodoTrabalho.ENCERRADO },
+        OR: [{ dataFim: null }, { dataFim: { gte: hoje } }],
+      },
+      orderBy: [{ status: "asc" }, { dataInicio: "desc" }],
+    }),
+    prisma.designacao.findMany({
+      include: { predioVila: true, periodoTrabalho: true },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+    }),
+  ]);
+  const periodosOpcoes = periodosValidos.map((periodo) => ({
+    id: periodo.id,
+    nome: periodo.nome,
+    tipo: periodo.tipo,
+    intervalo: `${formatDate(periodo.dataInicio)} até ${formatDate(periodo.dataFim)}`,
+  }));
 
   return (
     <>
       <PageHeader
         title="Controle de designações"
-        description="Selecione um registro pendente ou em andamento e informe o responsável e a data da designação."
+        description="Crie designações vinculadas a uma campanha ou período semestral válido."
       />
       <Notice success={params.success} error={params.error} />
       <Card>
-        <form action={designarPredioVila} className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_220px_auto] xl:items-end">
-          <Field label="Registro">
-            <Select name="id" required>
-              <option value="">Selecione</option>
-              {registros.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.id} - {item.nome} ({item.endereco})
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Responsável">
-            <Input name="responsavel" required />
-          </Field>
-          <Field label="Data">
-            <Input name="dataDesignacao" type="date" required />
-          </Field>
-          <Button type="submit" className="w-full md:col-span-2 xl:col-span-1 xl:w-auto">
-            Designar
-          </Button>
-        </form>
+        <h2 className="text-lg font-semibold text-slate-950">Nova designação</h2>
+        {periodosOpcoes.length > 0 ? (
+          <div className="mt-4">
+            <NovaDesignacaoForm
+              periodos={periodosOpcoes}
+              predios={registros}
+              redirectTo="/designacoes"
+              dataInicioPadrao={hoje.toISOString().slice(0, 10)}
+            />
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-slate-600">
+            Não há períodos válidos. Crie ou ative um período em Períodos de trabalho.
+          </p>
+        )}
+      </Card>
+
+      <Card>
+        <h2 className="text-lg font-semibold text-slate-950">Designações recentes</h2>
+        <div className="mt-4 grid gap-3">
+          {designacoesRecentes.map((designacao) => (
+            <div key={designacao.id} className="rounded-md border border-slate-200 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="font-medium text-slate-950">{designacao.predioVila.nome}</p>
+                  <p className="text-sm text-slate-600">
+                    {designacao.periodoTrabalho.nome} - {designacao.responsavel}
+                  </p>
+                </div>
+                <DesignacaoStatusBadge status={designacao.status} />
+              </div>
+            </div>
+          ))}
+          {designacoesRecentes.length === 0 ? <p className="text-sm text-slate-500">Nenhuma designação registrada.</p> : null}
+        </div>
       </Card>
 
       <div className="grid gap-3 md:hidden">

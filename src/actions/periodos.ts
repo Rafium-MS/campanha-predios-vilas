@@ -17,6 +17,17 @@ function formDataToObject(formData: FormData) {
   return Object.fromEntries(formData.entries());
 }
 
+function redirectWithMessage(path: string, type: "success" | "error", message: string): never {
+  const query = new URLSearchParams({ [type]: message });
+  redirect(`${path}?${query.toString()}`);
+}
+
+function redirectTarget(formData: FormData, fallbackPeriodoId?: string) {
+  const redirectTo = String(formData.get("redirectTo") ?? "").trim();
+  if (redirectTo.startsWith("/")) return redirectTo;
+  return fallbackPeriodoId ? `/periodos/${fallbackPeriodoId}` : "/periodos";
+}
+
 function redirectPeriodo(id: string, params: Record<string, string>): never {
   const query = new URLSearchParams(params);
   redirect(`/periodos/${id}?${query.toString()}`);
@@ -72,29 +83,30 @@ export async function encerrarPeriodoTrabalho(id: string) {
 
 export async function criarDesignacaoPeriodo(formData: FormData) {
   const parsed = criarDesignacaoPeriodoSchema.safeParse(formDataToObject(formData));
+  const returnTo = redirectTarget(formData, String(formData.get("periodoTrabalhoId") ?? ""));
   if (!parsed.success) {
-    redirectPeriodo(String(formData.get("periodoTrabalhoId") ?? ""), {
-      error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
-    });
+    redirectWithMessage(returnTo, "error", parsed.error.issues[0]?.message ?? "Dados inválidos.");
   }
 
   const data = parsed.data;
   const dataInicio = data.dataInicio as Date;
   const periodo = await prisma.periodoTrabalho.findUnique({ where: { id: data.periodoTrabalhoId } });
-  if (!periodo) redirect("/periodos?error=Período não encontrado.");
+  if (!periodo) redirectWithMessage(returnTo, "error", "Período não encontrado.");
 
   if (periodo.tipo === TipoPeriodoTrabalho.CAMPANHA && periodo.dataFim && dataInicio > periodo.dataFim) {
-    redirectPeriodo(periodo.id, { error: "A data de início da designação está fora do período da campanha." });
+    redirectWithMessage(returnTo, "error", "A data de início da designação está fora do período da campanha.");
   }
 
   if (periodo.tipo === TipoPeriodoTrabalho.SEMESTRAL) {
     const bloqueio = await verificarBloqueioSemestral(data.predioVilaId, dataInicio);
     if (bloqueio.bloqueado) {
-      redirectPeriodo(periodo.id, {
-        error: `Este prédio/vila está bloqueado por prazo. Próxima data permitida: ${formatDate(
+      redirectWithMessage(
+        returnTo,
+        "error",
+        `Este prédio/vila está bloqueado por prazo. Próxima data permitida: ${formatDate(
           bloqueio.proximaDataPermitida,
         )}.`,
-      });
+      );
     }
   }
 
@@ -126,7 +138,9 @@ export async function criarDesignacaoPeriodo(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/periodos");
   revalidatePath(`/periodos/${periodo.id}`);
-  redirectPeriodo(periodo.id, { success: "Designação criada com sucesso." });
+  revalidatePath("/designacoes");
+  revalidatePath("/predios");
+  redirectWithMessage(returnTo, "success", "Designação criada com sucesso.");
 }
 
 export async function atualizarStatusDesignacao(formData: FormData) {

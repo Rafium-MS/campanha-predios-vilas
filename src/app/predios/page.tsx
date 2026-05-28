@@ -1,12 +1,12 @@
-import { Prisma, StatusPredioVila } from "@prisma/client";
-import Link from "next/link";
+import { Prisma, StatusPeriodoTrabalho, StatusPredioVila } from "@prisma/client";
 
 import { ButtonLink } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
-import { StatusBadge } from "@/components/ui/status-badge";
 import { FilterForm } from "@/components/predios/filter-form";
+import { PredioMobileCard, PredioTableRow } from "@/components/predios/predio-context-items";
 import { prisma } from "@/lib/prisma";
+import { formatDate } from "@/lib/trabalho";
 
 export const dynamic = "force-dynamic";
 
@@ -39,10 +39,36 @@ export default async function PrediosPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const registros = await prisma.predioVila.findMany({
-    where: buildWhere(params),
-    orderBy: [{ quadra: "asc" }, { nome: "asc" }],
-  });
+  const hoje = new Date();
+  const [registros, periodosValidos] = await Promise.all([
+    prisma.predioVila.findMany({
+      where: buildWhere(params),
+      orderBy: [{ quadra: "asc" }, { nome: "asc" }],
+    }),
+    prisma.periodoTrabalho.findMany({
+      where: {
+        status: { not: StatusPeriodoTrabalho.ENCERRADO },
+        OR: [{ dataFim: null }, { dataFim: { gte: hoje } }],
+      },
+      orderBy: [{ status: "asc" }, { dataInicio: "desc" }],
+    }),
+  ]);
+  const periodosOpcoes = periodosValidos.map((periodo) => ({
+    id: periodo.id,
+    nome: periodo.nome,
+    tipo: periodo.tipo,
+    intervalo: `${formatDate(periodo.dataInicio)} até ${formatDate(periodo.dataFim)}`,
+  }));
+  const registrosResumo = registros.map((item) => ({
+    id: item.id,
+    nome: item.nome,
+    endereco: item.endereco,
+    quadra: item.quadra,
+    quantidadeResidencias: item.quantidadeResidencias,
+    tipoRecepcao: item.tipoRecepcao,
+    responsavel: item.responsavel,
+    status: item.status,
+  }));
 
   return (
     <>
@@ -53,41 +79,13 @@ export default async function PrediosPage({
       />
       <Notice success={params.success} error={params.error} />
       <FilterForm busca={params.busca} status={params.status} tipoRecepcao={params.tipoRecepcao} />
+      <p className="text-sm text-slate-600">
+        No desktop, clique com o botão direito em um prédio/vila para criar uma designação em um período válido.
+      </p>
 
       <div className="grid gap-3 md:hidden">
-        {registros.map((item) => (
-          <Link
-            key={item.id}
-            href={`/predios/${item.id}`}
-            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300"
-          >
-            <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase text-slate-500">{item.id}</p>
-                <h2 className="mt-1 truncate text-base font-semibold text-slate-950">{item.nome}</h2>
-                <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.endereco}</p>
-              </div>
-              <StatusBadge status={item.status} />
-            </div>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-xs text-slate-500">Quadra</dt>
-                <dd className="font-medium text-slate-950">{item.quadra ?? "-"}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-slate-500">Residências</dt>
-                <dd className="font-medium text-slate-950">{item.quantidadeResidencias}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-slate-500">Recepção</dt>
-                <dd className="truncate font-medium text-slate-950">{item.tipoRecepcao ?? "-"}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-slate-500">Responsável</dt>
-                <dd className="truncate font-medium text-slate-950">{item.responsavel ?? "-"}</dd>
-              </div>
-            </dl>
-          </Link>
+        {registrosResumo.map((item) => (
+          <PredioMobileCard key={item.id} predio={item} periodos={periodosOpcoes} />
         ))}
         {registros.length === 0 ? (
           <div className="rounded-lg border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500 shadow-sm">
@@ -111,23 +109,8 @@ export default async function PrediosPage({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {registros.map((item) => (
-              <tr key={item.id} className="hover:bg-slate-50">
-                <td className="px-4 py-3 font-medium">
-                  <Link href={`/predios/${item.id}`} className="text-slate-950 underline-offset-4 hover:underline">
-                    {item.id}
-                  </Link>
-                </td>
-                <td className="px-4 py-3">{item.nome}</td>
-                <td className="px-4 py-3">{item.endereco}</td>
-                <td className="px-4 py-3">{item.quadra ?? "-"}</td>
-                <td className="px-4 py-3">{item.quantidadeResidencias}</td>
-                <td className="px-4 py-3">{item.tipoRecepcao ?? "-"}</td>
-                <td className="px-4 py-3">{item.responsavel ?? "-"}</td>
-                <td className="px-4 py-3">
-                  <StatusBadge status={item.status} />
-                </td>
-              </tr>
+            {registrosResumo.map((item) => (
+              <PredioTableRow key={item.id} predio={item} periodos={periodosOpcoes} />
             ))}
             {registros.length === 0 ? (
               <tr>
