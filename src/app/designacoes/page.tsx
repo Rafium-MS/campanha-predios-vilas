@@ -32,7 +32,7 @@ export default async function DesignacoesPage({
       />
       <Notice success={params.success} error={params.error} />
       <Card>
-        <form action={designarPredioVila} className="grid gap-4 lg:grid-cols-[1.5fr_1fr_220px_auto] lg:items-end">
+        <form action={designarPredioVila} className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.5fr_1fr_220px_auto] xl:items-end">
           <Field label="Registro">
             <Select name="id" required>
               <option value="">Selecione</option>
@@ -49,10 +49,43 @@ export default async function DesignacoesPage({
           <Field label="Data">
             <Input name="dataDesignacao" type="date" required />
           </Field>
-          <Button type="submit">Designar</Button>
+          <Button type="submit" className="w-full md:col-span-2 xl:col-span-1 xl:w-auto">
+            Designar
+          </Button>
         </form>
       </Card>
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+
+      <div className="grid gap-3 md:hidden">
+        {registros.map((item) => (
+          <div key={item.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+              <div className="min-w-0">
+                <h2 className="truncate text-base font-semibold text-slate-950">{item.nome}</h2>
+                <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.endereco}</p>
+              </div>
+              <StatusBadge status={item.status} />
+            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt className="text-xs text-slate-500">Quadra</dt>
+                <dd className="font-medium text-slate-950">{item.quadra ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">Data</dt>
+                <dd className="font-medium text-slate-950">
+                  {item.dataDesignacao ? item.dataDesignacao.toLocaleDateString("pt-BR") : "-"}
+                </dd>
+              </div>
+              <div className="col-span-2">
+                <dt className="text-xs text-slate-500">Responsável</dt>
+                <dd className="truncate font-medium text-slate-950">{item.responsavel ?? "-"}</dd>
+              </div>
+            </dl>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm md:block">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr>

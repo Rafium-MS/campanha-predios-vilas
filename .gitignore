@@ -6,3 +6,7 @@ coverage/
 .env*.local
 *.tsbuildinfo
 prisma/dev.db
+dev-server.log
+.verification/
+
+.vercel

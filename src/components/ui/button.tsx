@@ -14,7 +14,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 export function Button({ className = "", variant = "primary", ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex min-h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition ${variants[variant]} ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${className}`}
       {...props}
     />
   );
@@ -30,7 +30,7 @@ export function ButtonLink({ className = "", href, variant = "primary", children
   return (
     <Link
       href={href}
-      className={`inline-flex min-h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition ${variants[variant]} ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

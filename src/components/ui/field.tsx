@@ -12,7 +12,7 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
-      className="min-h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-slate-700 focus:ring-2 focus:ring-slate-200"
+      className="min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-slate-700 focus:ring-2 focus:ring-slate-200 sm:text-sm"
       {...props}
     />
   );
@@ -21,7 +21,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
 export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
-      className="min-h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-slate-700 focus:ring-2 focus:ring-slate-200"
+      className="min-h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-slate-700 focus:ring-2 focus:ring-slate-200 sm:text-sm"
       {...props}
     />
   );
@@ -30,7 +30,7 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
 export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className="min-h-28 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-slate-700 focus:ring-2 focus:ring-slate-200"
+      className="min-h-32 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-slate-700 focus:ring-2 focus:ring-slate-200 sm:text-sm"
       {...props}
     />
   );

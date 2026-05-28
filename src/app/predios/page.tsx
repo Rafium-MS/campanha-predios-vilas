@@ -53,7 +53,50 @@ export default async function PrediosPage({
       />
       <Notice success={params.success} error={params.error} />
       <FilterForm busca={params.busca} status={params.status} tipoRecepcao={params.tipoRecepcao} />
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+
+      <div className="grid gap-3 md:hidden">
+        {registros.map((item) => (
+          <Link
+            key={item.id}
+            href={`/predios/${item.id}`}
+            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300"
+          >
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase text-slate-500">{item.id}</p>
+                <h2 className="mt-1 truncate text-base font-semibold text-slate-950">{item.nome}</h2>
+                <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.endereco}</p>
+              </div>
+              <StatusBadge status={item.status} />
+            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt className="text-xs text-slate-500">Quadra</dt>
+                <dd className="font-medium text-slate-950">{item.quadra ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">Residências</dt>
+                <dd className="font-medium text-slate-950">{item.quantidadeResidencias}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">Recepção</dt>
+                <dd className="truncate font-medium text-slate-950">{item.tipoRecepcao ?? "-"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-500">Responsável</dt>
+                <dd className="truncate font-medium text-slate-950">{item.responsavel ?? "-"}</dd>
+              </div>
+            </dl>
+          </Link>
+        ))}
+        {registros.length === 0 ? (
+          <div className="rounded-lg border border-slate-200 bg-white px-4 py-8 text-center text-sm text-slate-500 shadow-sm">
+            Nenhum registro encontrado.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm md:block">
         <table className="w-full min-w-[980px] text-left text-sm">
           <thead className="bg-slate-50 text-slate-600">
             <tr>

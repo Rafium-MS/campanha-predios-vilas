@@ -13,7 +13,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR">
       <body>
         <Nav />
-        <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <main className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 sm:gap-6 sm:px-6 sm:py-6 lg:px-8">
+          {children}
+        </main>
       </body>
     </html>
   );

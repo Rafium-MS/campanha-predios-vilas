@@ -16,8 +16,8 @@ export function PredioForm({
   submitLabel: string;
 }) {
   return (
-    <form action={action} className="grid gap-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="grid gap-4 md:grid-cols-3">
+    <form action={action} className="grid gap-5 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <Field label="ID">
           <Input name="id" defaultValue={predio?.id} required disabled={Boolean(predio)} />
         </Field>
@@ -69,7 +69,9 @@ export function PredioForm({
         <Textarea name="observacoes" defaultValue={predio?.observacoes ?? ""} />
       </Field>
       <div className="flex justify-end">
-        <Button type="submit">{submitLabel}</Button>
+        <Button type="submit" className="w-full sm:w-auto">
+          {submitLabel}
+        </Button>
       </div>
     </form>
   );

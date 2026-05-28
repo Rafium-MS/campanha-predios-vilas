@@ -8,7 +8,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" variant="danger" disabled={pending}>
+    <Button type="submit" variant="danger" disabled={pending} className="w-full sm:w-auto">
       {pending ? "Excluindo..." : "Excluir"}
     </Button>
   );
